@@ -36,4 +36,3 @@ EOF
 fi
 
 exec mysqld_safe
-

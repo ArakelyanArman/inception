@@ -49,4 +49,3 @@ fi
 
 # Start PHP-FPM
 exec /usr/sbin/php-fpm8.4 -F
-
