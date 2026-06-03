@@ -3,6 +3,9 @@ set -e
 
 # On the first container run, generate a certificate and configure the server
 if [ ! -e /etc/.firstrun ]; then
+    # Ensure the directory structure for SSL certificates exists
+    mkdir -p /etc/nginx/ssl
+
     # Generate a certificate for HTTPS
     openssl req -x509 -days 365 -newkey rsa:2048 -nodes \
         -out '/etc/nginx/ssl/cert.crt' \
@@ -10,20 +13,16 @@ if [ ! -e /etc/.firstrun ]; then
         -subj "/CN=$DOMAIN_NAME" \
          >/dev/null 2>/dev/null
 
-    # Remove Debian's default port 80 site configuration to prevent conflicts
+    # Remove Debian's default port 80 site configuration to prevent port mapping conflicts
     rm -f /etc/nginx/sites-enabled/default
 
     # Configure nginx to serve static WordPress files and pass PHP requests
-    # Writing directly to sites-available/default and linking it to sites-enabled/
+    # Overwriting directly to sites-available/default
     cat << EOF > /etc/nginx/sites-available/default
 server {
-    listen 443 ssl;
-    listen [::]:443 ssl;
+    listen 443 ssl http2;
+    listen [::]:443 ssl http2;
     server_name $DOMAIN_NAME;
-
-    # Note: 'http2' directive is deprecated on newer Nginx versions inside the 'listen' line.
-    # It is handled globally or via 'http2 on;' in modern configurations, but kept here for compatibility.
-    http2 on;
 
     ssl_certificate /etc/nginx/ssl/cert.crt;
     ssl_certificate_key /etc/nginx/ssl/cert.key;
@@ -50,10 +49,12 @@ server {
 }
 EOF
 
-    # Enable the configuration by symlinking it
+    # Enable the configuration profile by symlinking it into sites-enabled
     ln -sf /etc/nginx/sites-available/default /etc/nginx/sites-enabled/default
 
+    # Mark the first-run configuration phase complete
     touch /etc/.firstrun
 fi
 
+# Run Nginx in the foreground to keep the Docker container alive
 exec nginx -g 'daemon off;'
