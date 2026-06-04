@@ -1,6 +1,6 @@
 FROM debian:bookworm
 
-RUN apt update && apt install nginx openssl bash -y
+RUN apt-get update && apt-get install nginx openssl bash -y
 
 COPY tools/nginx-entrypoint.sh /usr/local/bin/
 

@@ -11,7 +11,7 @@ fi
 # On the first volume mount, download and configure WordPress
 if [ ! -e .firstmount ]; then
     # Wait for MariaDB to be ready
-    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait >/dev/null 2>/dev/null
+    mariadb-admin ping --protocol=tcp --host=mariadb -u "$MYSQL_USER" --password="$MYSQL_PASSWORD" --wait
 
     # Check if WordPress is already installed
     if [ ! -f wp-config.php ]; then
@@ -37,7 +37,7 @@ if [ ! -e .firstmount ]; then
             --admin_email="$WORDPRESS_ADMIN_EMAIL"
 
         # Create a regular user if it doesn't already exist
-        if ! wp user get "$WORDPRESS_USER" --allow-root > /dev/null 2>&1; then
+        if ! wp user get "$WORDPRESS_USER" --allow-root; then
             wp user create "$WORDPRESS_USER" "$WORDPRESS_EMAIL" --role=author --user_pass="$WORDPRESS_PASSWORD" --allow-root
         fi
     else
