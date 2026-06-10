@@ -16,12 +16,12 @@ fi
 if [ ! -e /var/lib/mysql/.firstmount ]; then
     # Initialize a database on the volume and start MariaDB in the background
     mysql_install_db --datadir=/var/lib/mysql --skip-test-db --user=mysql --group=mysql \
-        --auth-root-authentication-method=socket
+        --auth-root-authentication-method=socket >/dev/null 2>/dev/null
     mysqld_safe &
     mysqld_pid=$!
 
     # Wait for the server to be started, then set up database and accounts
-    mysqladmin ping -u root --silent --wait
+    mysqladmin ping -u root --silent --wait >/dev/null 2>/dev/null
     cat << EOF | mysql --protocol=socket -u root -p=
 CREATE DATABASE $MYSQL_DATABASE;
 CREATE USER '$MYSQL_USER'@'%' IDENTIFIED BY '$MYSQL_PASSWORD';

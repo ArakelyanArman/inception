@@ -14,13 +14,12 @@ down:
 	@printf "Stopping configuration ${name}...\n"
 	@docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) down
 
-re: down create_dirs make_dir_up_build
+re: fclean all
 
 clean: down
 	@printf "Cleaning configuration ${name}...\n"
 	@docker system prune -a
-	@sudo rm -rf $(WORDPRESS_DATA_DIR)
-	@sudo rm -rf $(MARIADB_DATA_DIR)
+	@sudo rm -rf $(DATA_DIR)
 
 fclean: down
 	@printf "Total clean of all configurations docker\n"
@@ -28,8 +27,7 @@ fclean: down
 	@docker system prune --all --force --volumes
 	@docker network prune --force
 	@docker volume prune --force
-	@sudo rm -rf $(WORDPRESS_DATA_DIR)
-	@sudo rm -rf $(MARIADB_DATA_DIR)
+	@sudo rm -rf $(DATA_DIR)
 
 logs:
 	@docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) logs -f
@@ -48,4 +46,3 @@ make_dir_up:
 make_dir_up_build:
 	@printf "Building configuration ${name}...\n"
 	@docker compose -f $(DOCKER_COMPOSE_FILE) --env-file $(ENV_FILE) up -d --build
-
